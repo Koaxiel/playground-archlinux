@@ -1,0 +1,37 @@
+---
+# tasks file for archiso
+- name: Install archiso
+  pacman:
+    name: archiso
+    state: present
+    update_cache: yes
+
+- name: Create build folder
+  file:
+    path: /tmp/archlive/out
+    state: directory
+
+- name: Copy releng profile
+  synchronize:
+    src: "/usr/share/archiso/configs/releng/"
+    dest: "/tmp/archlive"
+
+- name: Add ansible package
+  lineinfile:
+    dest: "/tmp/archlive/packages.both"
+    insertbefore: BOF
+    state: present
+    line: "ansible"
+
+- name: Enable sshd
+  lineinfile:
+    dest: "/tmp/archlive/airootfs/root/customize_airootfs.sh"
+    line: "systemctl enable sshd.socket"
+
+- name: Set root password
+  lineinfile:
+    dest: "/tmp/archlive/airootfs/root/customize_airootfs.sh"
+    line: "echo 'root:toto' | chpasswd"
+
+- name: Build iso
+  command: "sh /tmp/archlive/build.sh -o /tmp/archlive/out -w /tmp/archlive/work -D /tmp/archlive/arch"

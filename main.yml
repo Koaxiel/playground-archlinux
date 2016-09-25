@@ -1,0 +1,25 @@
+---
+
+- hosts: localhost
+  connection: local
+
+  roles:
+    - { role: archiso, tag: archiso, become: yes }
+    - { role: libvirt, tag: libvirt }
+    - { role: vagrant, tag: vagrant }
+
+  tasks:
+    - name: Install vagrant and virt-manager
+      pacman:
+        name: "{{ item }}"
+        state: present
+        update_cache: yes
+      with_items:
+        - vagrant
+        - virt-manager
+      become: yes
+
+# install libvirt ebtables, etc
+#plugin install vagrant libvirt
+#nvram = "/usr/share/ovmf/x64/ovmf_code_x64.bin:/usr/share/ovmf/x64/ovmf_vars_x64.bin"
+
