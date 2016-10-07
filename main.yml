@@ -7,6 +7,7 @@
     - { role: archiso, tag: archiso, become: yes }
     - { role: libvirt, tag: libvirt }
     - { role: vagrant, tag: vagrant }
+    - { role: box, tag: box }
 
   tasks:
     - name: Install vagrant and virt-manager

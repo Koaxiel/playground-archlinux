@@ -1,2 +1,10 @@
 ---
 # tasks file for libvirt
+
+- name: Install virt-manager
+
+
+- name: Add nvram qemu.conf
+
+
+- name: Startd libvirt
