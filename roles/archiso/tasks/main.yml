@@ -8,8 +8,11 @@
 
 - name: Create build folder
   file:
-    path: /tmp/archlive/out
+    path: "{{ item }}"
     state: directory
+  with_items:
+    - /tmp/archlive/out
+    - /tmp/archlive/airootfs/etc/systemd/system/dhcpcd@.service.d
 
 - name: Copy releng profile
   synchronize:
@@ -22,6 +25,14 @@
     insertbefore: BOF
     state: present
     line: "ansible"
+
+- name: Override dhcpcd@.service
+  copy:
+    content: |
+      [Service]
+      ExecStop=
+      ExecStop=/usr/bin/dhcpcd -k %I
+    dest: "/tmp/archlive/airootfs/etc/systemd/system/dhcpcd@.service.d/override.conf"
 
 - name: Enable sshd
   lineinfile:

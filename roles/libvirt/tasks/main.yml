@@ -5,6 +5,11 @@
 
 
 - name: Add nvram qemu.conf
+- name: Change user for qemu.conf
+
+- name: Add user in libvirt group
+
+
 
 
 - name: Startd libvirt
