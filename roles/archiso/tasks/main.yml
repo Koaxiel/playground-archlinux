@@ -1,5 +1,4 @@
 ---
-# tasks file for archiso
 - name: Install archiso
   pacman:
     name: archiso
@@ -11,17 +10,16 @@
     path: "{{ item }}"
     state: directory
   with_items:
-    - /tmp/archlive/out
-    - /tmp/archlive/airootfs/etc/systemd/system/dhcpcd@.service.d
+    - "{{ archiso_dir }}/archlive/airootfs/etc/systemd/system/dhcpcd@.service.d"
 
 - name: Copy releng profile
   synchronize:
     src: "/usr/share/archiso/configs/releng/"
-    dest: "/tmp/archlive"
+    dest: "{{ archiso_dir }}/archlive"
 
 - name: Add ansible package
   lineinfile:
-    dest: "/tmp/archlive/packages.both"
+    dest: "{{ archiso_dir }}/archlive/packages.both"
     insertbefore: BOF
     state: present
     line: "ansible"
@@ -32,17 +30,17 @@
       [Service]
       ExecStop=
       ExecStop=/usr/bin/dhcpcd -k %I
-    dest: "/tmp/archlive/airootfs/etc/systemd/system/dhcpcd@.service.d/override.conf"
+    dest: "{{ archiso_dir }}/archlive/airootfs/etc/systemd/system/dhcpcd@.service.d/override.conf"
 
 - name: Enable sshd
   lineinfile:
-    dest: "/tmp/archlive/airootfs/root/customize_airootfs.sh"
+    dest: "{{ archiso_dir }}/archlive/airootfs/root/customize_airootfs.sh"
     line: "systemctl enable sshd.socket"
 
 - name: Set root password
   lineinfile:
-    dest: "/tmp/archlive/airootfs/root/customize_airootfs.sh"
+    dest: "{{ archiso_dir }}/archlive/airootfs/root/customize_airootfs.sh"
     line: "echo 'root:toto' | chpasswd"
 
 - name: Build iso
-  command: "sh /tmp/archlive/build.sh -o /tmp/archlive/out -w /tmp/archlive/work -D /tmp/archlive/arch"
+  command: "bash {{ archiso_dir }}/archlive/build.sh -w {{ archiso_dir }}/archlive/work"
