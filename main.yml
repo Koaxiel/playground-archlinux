@@ -7,7 +7,7 @@
     - { role: archiso, tag: archiso, become: yes }
     - { role: libvirt, tag: libvirt }
     - { role: vagrant, tag: vagrant }
-    - { role: box, tag: box }
+      #- { role: box, tag: box }
 
   tasks:
     - name: Install vagrant and virt-manager
@@ -20,7 +20,7 @@
         - virt-manager
       become: yes
 
-# install libvirt ebtables, etc
+# install libvirt ebtables, etc, nfs
 #plugin install vagrant libvirt
 #nvram = "/usr/share/ovmf/x64/ovmf_code_x64.bin:/usr/share/ovmf/x64/ovmf_vars_x64.bin"
 

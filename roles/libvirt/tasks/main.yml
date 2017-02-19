@@ -1,15 +1,15 @@
 ---
 # tasks file for libvirt
 
-- name: Install virt-manager
-
-
-- name: Add nvram qemu.conf
-- name: Change user for qemu.conf
-
-- name: Add user in libvirt group
-
-
-
-
-- name: Startd libvirt
+#- name: Install virt-manager
+#
+#
+#- name: Add nvram qemu.conf
+#- name: Change user for qemu.conf
+#
+#- name: Add user in libvirt group
+#
+#
+#
+#
+#- name: Startd libvirt
