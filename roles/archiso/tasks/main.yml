@@ -4,6 +4,7 @@
     name: archiso
     state: present
     update_cache: yes
+  become: yes
 
 - name: Create build folder
   file:
@@ -11,11 +12,13 @@
     state: directory
   with_items:
     - "{{ archiso_dir }}/archlive/airootfs/etc/systemd/system/dhcpcd@.service.d"
+  become: yes
 
 - name: Copy releng profile
   synchronize:
     src: "/usr/share/archiso/configs/releng/"
     dest: "{{ archiso_dir }}/archlive"
+  become: yes
 
 - name: Add ansible package
   lineinfile:
@@ -23,6 +26,7 @@
     insertbefore: BOF
     state: present
     line: "ansible"
+  become: yes
 
 - name: Override dhcpcd@.service
   copy:
@@ -31,16 +35,20 @@
       ExecStop=
       ExecStop=/usr/bin/dhcpcd -k %I
     dest: "{{ archiso_dir }}/archlive/airootfs/etc/systemd/system/dhcpcd@.service.d/override.conf"
+  become: yes
 
 - name: Enable sshd
   lineinfile:
     dest: "{{ archiso_dir }}/archlive/airootfs/root/customize_airootfs.sh"
     line: "systemctl enable sshd.socket"
+  become: yes
 
 - name: Set root password
   lineinfile:
     dest: "{{ archiso_dir }}/archlive/airootfs/root/customize_airootfs.sh"
     line: "echo 'root:toto' | chpasswd"
+  become: yes
 
 - name: Build iso
-  command: "bash {{ archiso_dir }}/archlive/build.sh -w {{ archiso_dir }}/archlive/work"
+  command: "bash {{ archiso_dir }}/archlive/build.sh -v -w {{ archiso_dir }}/archlive/work -o {{ archiso_dir }}"
+  become: yes

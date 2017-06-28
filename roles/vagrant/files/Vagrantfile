@@ -1,14 +1,14 @@
 # -*- mode: ruby -*-
 # # vi: set ft=ruby :
-Vagrant.require_plugin "vagrant-reload"
+#Vagrant.require_plugin "vagrant-reload"
 
 Vagrant.configure("2") do |config|
 
   config.ssh.username = 'root'
   config.ssh.password = 'toto'
 
-  config.vm.synced_folder '.', '/vagrant', type: '9p'
-  config.vm.synced_folder '/var/cache/pacman/pkg/', '/var/cache/pacman/pkg/', type: '9p', readonly: true
+  config.vm.synced_folder '.', '/vagrant', type: "nfs"
+  config.vm.synced_folder '/var/cache/pacman/pkg/', '/var/cache/pacman/pkg/', type: "nfs"
 
   config.vm.provision "arch_setup", type: "ansible_local" do |ansible|
     ansible.inventory_path = "/vagrant/koaxiel/arch_install/inventory"
@@ -18,11 +18,12 @@ Vagrant.configure("2") do |config|
       root_password: "toto",
       hostname: "vm_titi"
     }
-    ansible.install = true
-    ansible.verbose = true
+    #ansible.install = true
+    ansible.verbose = 'vvv'
+    ansible.tags = Shellwords.shellsplit(ENV['ANSIBLE_ARGS']) if ENV['ANSIBLE_ARGS']
   end
 
-  #config.vm.provision "shell", inline: "dhcpcd -k ens7"
+  #config.vm.provision "shell", inline: "ls /var/lib/pacman/"
   config.vm.provision :reload
 
   config.vm.provision "laptop", type: "ansible_local" do |ansible|
@@ -33,7 +34,8 @@ Vagrant.configure("2") do |config|
       user_password: "toto",
       username: "titi"
     }
-    ansible.verbose = true
+    ansible.verbose = 'vvv'
+    ansible.tags = Shellwords.shellsplit(ENV['ANSIBLE_ARGS']) if ENV['ANSIBLE_ARGS']
   end
 
   config.vm.define :archlinux do |archlinux|
@@ -80,8 +82,8 @@ Vagrant.configure("2") do |config|
       libvirt.cpu_mode = 'host-passthrough'
 
       libvirt.disk_bus = 'sata'
-      libvirt.storage :file, :device => :cdrom, :path => '/var/lib/libvirt/images/archlinux-2017.01.29-dual.iso'
-      libvirt.loader = '/usr/share/ovmf/x64/ovmf_x64.bin'
+      libvirt.storage :file, :device => :cdrom, :path => '/var/lib/libvirt/images/archlinux-2017.04.29-x86_64.iso'
+      libvirt.loader = '/usr/share/ovmf/ovmf_code_x64.bin'
       libvirt.boot 'hd'
       libvirt.boot 'cdrom'
 
