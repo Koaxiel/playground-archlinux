@@ -20,13 +20,32 @@
     dest: "{{ archiso_dir }}/archlive"
   become: yes
 
-- name: Add ansible package
+- name: Change airootfs size
+  lineinfile:
+    backrefs: yes
+    path: "{{ item }}"
+    regexp: '^(options(?!.*\bcow_spacesize=1G\b).*)$'
+    line: '\1 cow_spacesize=1G'
+  become: yes
+  with_items:
+    - "{{ archiso_dir }}/archlive/efiboot/loader/entries/archiso-x86_64-cd.conf"
+    - "{{ archiso_dir }}/archlive/efiboot/loader/entries/archiso-x86_64-usb.conf"
+
+- name: Add ansible & git package
   lineinfile:
     dest: "{{ archiso_dir }}/archlive/packages.both"
     insertbefore: BOF
     state: present
-    line: "ansible"
+    line: "{{ item }}"
   become: yes
+  with_items:
+    - ansible
+    - git
+
+- name: Git clone koaxiel
+  git:
+    repo: "https://github.com/Koaxiel/koaxiel.git"
+    dest: "{{ archiso_dir }}/archlive/airootfs/root/koaxiel/"
 
 - name: Override dhcpcd@.service
   copy:
@@ -35,6 +54,13 @@
       ExecStop=
       ExecStop=/usr/bin/dhcpcd -k %I
     dest: "{{ archiso_dir }}/archlive/airootfs/etc/systemd/system/dhcpcd@.service.d/override.conf"
+  become: yes
+
+- name: Change mirrorlist
+  lineinfile:
+    dest: "{{ archiso_dir }}/archlive/airootfs/root/customize_airootfs.sh"
+    line: "curl -o /etc/pacman.d/mirrorlist 'https://www.archlinux.org/mirrorlist/?country=FR&protocol=http&protocol=https&ip_version=4&ip_version=6&use_mirror_status=on'"
+    insertbefore: 'sed -i "s/#Server/Server/g" /etc/pacman.d/mirrorlist'
   become: yes
 
 - name: Enable sshd
@@ -47,6 +73,18 @@
   lineinfile:
     dest: "{{ archiso_dir }}/archlive/airootfs/root/customize_airootfs.sh"
     line: "echo 'root:toto' | chpasswd"
+  become: yes
+
+- name: Set vconsole
+  copy:
+    src: files/vconsole.conf
+    dest: "{{ archiso_dir }}/archlive/airootfs/etc/vconsole.conf"
+  become: yes
+
+- name: Add wpa_supplicant-wired.conf in root
+  copy:
+    src: files/wpa_supplicant-wired.conf
+    dest: "{{ archiso_dir }}/archlive/airootfs/root/wpa_supplicant-wired.conf"
   become: yes
 
 - name: Build iso
