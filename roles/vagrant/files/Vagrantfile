@@ -7,8 +7,13 @@ Vagrant.configure("2") do |config|
   config.ssh.username = 'root'
   config.ssh.password = 'toto'
 
-  config.vm.synced_folder '.', '/vagrant', type: "nfs"
-  config.vm.synced_folder '/var/cache/pacman/pkg/', '/var/cache/pacman/pkg/', type: "nfs"
+  config.vm.synced_folder '.', '/vagrant', type: "nfs",
+    nfs_version: 4,
+    nfs_udp: false,
+    linux__nfs_options: ['rw','no_subtree_check','no_root_squash','async']
+  config.vm.synced_folder '/var/cache/pacman/pkg/', '/var/cache/pacman/pkg/', type: "nfs",
+    nfs_version: 4,
+    nfs_udp: false
 
   config.vm.provision "arch_setup", type: "ansible_local" do |ansible|
     ansible.inventory_path = "/vagrant/koaxiel/arch_install/inventory"
@@ -16,9 +21,8 @@ Vagrant.configure("2") do |config|
     ansible.limit = "all"
     ansible.extra_vars = {
       root_password: "toto",
-      hostname: "vm_titi"
+      hostname: "vmtiti"
     }
-    #ansible.install = true
     ansible.verbose = 'vvv'
     ansible.tags = Shellwords.shellsplit(ENV['ANSIBLE_ARGS']) if ENV['ANSIBLE_ARGS']
   end
@@ -77,13 +81,13 @@ Vagrant.configure("2") do |config|
       # Set a prefix for the machines that's different than the project dir name.
       #libvirt.default_prefix = ''
 
-      libvirt.memory = 2048
+      libvirt.memory = 2024
       libvirt.cpus = 2
       libvirt.cpu_mode = 'host-passthrough'
 
       libvirt.disk_bus = 'sata'
-      libvirt.storage :file, :device => :cdrom, :path => '/var/lib/libvirt/images/archlinux-2017.04.29-x86_64.iso'
-      libvirt.loader = '/usr/share/ovmf/ovmf_code_x64.bin'
+      libvirt.storage :file, :device => :cdrom, :path => '/var/lib/libvirt/images/archlinux-2019.03.10-x86_64.iso'
+      libvirt.loader = '/usr/share/ovmf/x64/OVMF_CODE.fd'
       libvirt.boot 'hd'
       libvirt.boot 'cdrom'
 

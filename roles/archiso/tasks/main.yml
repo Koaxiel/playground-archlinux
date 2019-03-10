@@ -33,7 +33,7 @@
 
 - name: Add ansible & git package
   lineinfile:
-    dest: "{{ archiso_dir }}/archlive/packages.both"
+    dest: "{{ archiso_dir }}/archlive/packages.x86_64"
     insertbefore: BOF
     state: present
     line: "{{ item }}"
