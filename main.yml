@@ -6,18 +6,6 @@
     - { role: archiso, tags: archiso, become: yes }
     - { role: libvirt, tags: libvirt }
     - { role: vagrant, tags: vagrant }
-      #- { role: box, tag: box }
-
-  tasks:
-  - name: Install vagrant and virt-manager
-    pacman:
-      name: "{{ item }}"
-      state: present
-      update_cache: yes
-    with_items:
-      - vagrant
-      - virt-manager
-    become: yes
 
 # install libvirt ebtables, etc, nfs
 #plugin install vagrant libvirt

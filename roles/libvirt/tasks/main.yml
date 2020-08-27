@@ -1,6 +1,11 @@
 ---
 # tasks file for libvirt
-
+- name: Install packages
+  pacman:
+    name: [virt-manager, ovmf]
+    state: present
+    update_cache: yes
+  become: yes
 #- name: Install virt-manager
 #
 #

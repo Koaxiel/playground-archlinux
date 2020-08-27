@@ -66,13 +66,19 @@
 - name: Enable sshd
   lineinfile:
     dest: "{{ archiso_dir }}/archlive/airootfs/root/customize_airootfs.sh"
-    line: "systemctl enable sshd.socket"
+    line: "systemctl enable sshd.service"
   become: yes
 
 - name: Set root password
   lineinfile:
     dest: "{{ archiso_dir }}/archlive/airootfs/root/customize_airootfs.sh"
     line: "echo 'root:toto' | chpasswd"
+  become: yes
+
+- name: Set locale.conf
+  copy:
+    src: files/locale.conf
+    dest: "{{ archiso_dir }}/archlive/airootfs/etc/locale.conf"
   become: yes
 
 - name: Set vconsole

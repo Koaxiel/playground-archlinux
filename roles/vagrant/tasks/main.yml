@@ -1,2 +1,27 @@
 ---
 # tasks file for vagrant
+- name: Install packages
+  pacman:
+    name: [vagrant, nfs-utils]
+    state: present
+    update_cache: yes
+  become: yes
+
+# - name: Create folder
+
+
+# - name: Create VagrantFile
+
+
+
+# - name: Install Vagrant plugins
+
+# vagrant plugin install
+
+# vagrant-libvirt
+# vagrant-reload
+
+
+# - name: Setup nfs
+
+# - name: Add Vagrant box
