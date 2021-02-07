@@ -20,79 +20,57 @@
     dest: "{{ archiso_dir }}/archlive"
   become: yes
 
-- name: Change airootfs size
-  lineinfile:
-    backrefs: yes
-    path: "{{ item }}"
-    regexp: '^(options(?!.*\bcow_spacesize=1G\b).*)$'
-    line: '\1 cow_spacesize=1G'
-  become: yes
-  with_items:
-    - "{{ archiso_dir }}/archlive/efiboot/loader/entries/archiso-x86_64-cd.conf"
-    - "{{ archiso_dir }}/archlive/efiboot/loader/entries/archiso-x86_64-usb.conf"
-
 - name: Add ansible & git package
   lineinfile:
-    dest: "{{ archiso_dir }}/archlive/packages.x86_64"
+    path: "{{ archiso_dir }}/archlive/packages.x86_64"
     insertbefore: BOF
     state: present
     line: "{{ item }}"
   become: yes
-  with_items:
+  loop:
     - ansible
     - git
 
 - name: Git clone koaxiel
   git:
+    depth: 1
     repo: "https://github.com/Koaxiel/koaxiel.git"
     dest: "{{ archiso_dir }}/archlive/airootfs/root/koaxiel/"
 
-- name: Override dhcpcd@.service
-  copy:
-    content: |
-      [Service]
-      ExecStop=
-      ExecStop=/usr/bin/dhcpcd -k %I
-    dest: "{{ archiso_dir }}/archlive/airootfs/etc/systemd/system/dhcpcd@.service.d/override.conf"
-  become: yes
-
-- name: Change mirrorlist
+- name: Permit ssh with empty password
   lineinfile:
-    dest: "{{ archiso_dir }}/archlive/airootfs/root/customize_airootfs.sh"
-    line: "curl -o /etc/pacman.d/mirrorlist 'https://www.archlinux.org/mirrorlist/?country=FR&protocol=http&protocol=https&ip_version=4&ip_version=6&use_mirror_status=on'"
-    insertbefore: 'sed -i "s/#Server/Server/g" /etc/pacman.d/mirrorlist'
+    path: "{{ archiso_dir }}/archlive/airootfs/etc/ssh/sshd_config"
+    insertafter: '#PermitEmptyPasswords no'
+    line: PermitEmptyPasswords yes
   become: yes
 
-- name: Enable sshd
-  lineinfile:
-    dest: "{{ archiso_dir }}/archlive/airootfs/root/customize_airootfs.sh"
-    line: "systemctl enable sshd.service"
-  become: yes
-
-- name: Set root password
-  lineinfile:
-    dest: "{{ archiso_dir }}/archlive/airootfs/root/customize_airootfs.sh"
-    line: "echo 'root:toto' | chpasswd"
-  become: yes
-
-- name: Set locale.conf
+- name: Install locale config
   copy:
-    src: files/locale.conf
-    dest: "{{ archiso_dir }}/archlive/airootfs/etc/locale.conf"
+    src: 'files/{{ item }}'
+    dest: '{{ archiso_dir }}/archlive/airootfs/etc/{{ item }}'
   become: yes
+  loop:
+    - locale.conf
+    - vconsole.conf
 
-- name: Set vconsole
-  copy:
-    src: files/vconsole.conf
-    dest: "{{ archiso_dir }}/archlive/airootfs/etc/vconsole.conf"
-  become: yes
+- name: Add mirrolist
+  get_url:
+    url: 'https://www.archlinux.org/mirrorlist/?country=FR&protocol=http&protocol=https&ip_version=4&ip_version=6&use_mirror_status=on'
+    dest: '{{ archiso_dir }}/archlive/airootfs/etc/pacman.d/mirrorlist'
 
-- name: Add wpa_supplicant-wired.conf in root
+- name: Add wpa_supplicant-wired.conf in root folder
   copy:
     src: files/wpa_supplicant-wired.conf
     dest: "{{ archiso_dir }}/archlive/airootfs/root/wpa_supplicant-wired.conf"
   become: yes
 
 - name: Build iso
-  command: "bash {{ archiso_dir }}/archlive/build.sh -v -w {{ archiso_dir }}/archlive/work -o {{ archiso_dir }}"
+  command: "mkarchiso -v -w {{ archiso_dir }}/archlive/work -o {{ archiso_dir }} {{ archiso_dir }}/archlive"
+  become: yes
+
+- name: Copy image to libvirt storage
+  copy:
+    src: '{{ item }}'
+    dest: '/var/lib/libvirt/images/archlinux.iso'
+  with_fileglob: '*.iso'
   become: yes

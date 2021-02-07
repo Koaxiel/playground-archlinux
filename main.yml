@@ -3,10 +3,6 @@
   connection: local
 
   roles:
-    - { role: archiso, tags: archiso, become: yes }
     - { role: libvirt, tags: libvirt }
+    - { role: archiso, tags: archiso, become: yes }
     - { role: vagrant, tags: vagrant }
-
-# install libvirt ebtables, etc, nfs
-#plugin install vagrant libvirt
-#nvram = "/usr/share/ovmf/x64/ovmf_code_x64.bin:/usr/share/ovmf/x64/ovmf_vars_x64.bin"

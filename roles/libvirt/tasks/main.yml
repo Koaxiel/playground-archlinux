@@ -2,19 +2,27 @@
 # tasks file for libvirt
 - name: Install packages
   pacman:
-    name: [virt-manager, ovmf]
+    name: [virt-manager, edk2-ovmf, dnsmasq]
     state: present
     update_cache: yes
   become: yes
-#- name: Install virt-manager
-#
-#
-#- name: Add nvram qemu.conf
-#- name: Change user for qemu.conf
-#
-#- name: Add user in libvirt group
-#
-#
-#
-#
-#- name: Startd libvirt
+
+- name: Add user to group libvirt
+  user:
+    name: '{{ ansible_user_id }}'
+    groups: libvirt
+    append: yes
+  become: yes
+
+- name: Start libvirt service
+  systemd:
+    name: libvirtd
+    enabled: yes
+    state: started
+  become: yes
+
+- name: Start virtlogd service
+  systemd:
+    name: virtlogd
+    state: started
+  become: yes
