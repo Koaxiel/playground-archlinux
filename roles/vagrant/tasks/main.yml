@@ -8,12 +8,12 @@
   become: yes
 
 - name: Install vagran-libvirt and vagrant-reload plugin
-  command: VAGRANT_DISABLE_STRICT_DEPENDENCY_ENFORCEMENT=1 vagrant plugin install vagrant-libvirt vagrant-reload
-  args:
-    creates: '{{ ansible_user_dir }}/.vagrant.d/plugins.json'
+  shell: vagrant plugin install vagrant-libvirt vagrant-reload
+  environment:
+    VAGRANT_DISABLE_STRICT_DEPENDENCY_ENFORCEMENT: 1
 
 - name: Add archlinux box
-  command: vagrant box add files/package.box --name archlinux
+  shell: vagrant box add roles/vagrant/files/package.box --name archlinux
   args:
     creates: '{{ ansible_user_dir }}/.vagrant.d/boxes/archlinux/0/libvirt/box.img'
 
