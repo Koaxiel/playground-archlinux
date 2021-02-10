@@ -2,7 +2,7 @@
 # tasks file for libvirt
 - name: Install packages
   pacman:
-    name: [virt-manager, edk2-ovmf, dnsmasq]
+    name: [virt-manager, edk2-ovmf, dnsmasq, ebtables]
     state: present
     update_cache: yes
   become: yes
