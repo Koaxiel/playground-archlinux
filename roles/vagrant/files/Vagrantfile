@@ -18,7 +18,8 @@ Vagrant.configure("2") do |config|
     ansible.limit = "all"
     ansible.extra_vars = {
       root_password: "toto",
-      hostname: "vmtiti"
+      hostname: "vmtiti",
+      disk: "sda"
     }
     ansible.verbose = 'vvv'
     ansible.tags = Shellwords.shellsplit(ENV['ANSIBLE_ARGS']) if ENV['ANSIBLE_ARGS']
